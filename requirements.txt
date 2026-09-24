@@ -1,2 +1,2 @@
-руTelegramBotAPI
-flask
+telebot
+Flask
