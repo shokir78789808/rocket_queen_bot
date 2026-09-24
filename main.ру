@@ -1,0 +1,76 @@
+import telebot
+from telebot import types
+import random
+import time
+import datetime
+
+TOKEN = "8877765788:AAH3V3lREuztAbWhVRb5AlVD0U5CzzVlNC4"
+
+bot = telebot.TeleBot(TOKEN)
+bot.remove_webhook()
+
+user_limits = {}
+
+@bot.message_handler(commands=['start'])
+def start_cmd(message):
+    user_id = message.from_user.id
+    today = str(datetime.date.today())
+
+    if user_id not in user_limits or user_limits[user_id]["date"] != today:
+        user_limits[user_id] = {"date": today, "count": 0}
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("🚀 Сигнал"))
+
+    welcome_text = (
+        "Салом хуш омадед\n\n"
+        "Диккат аз сабабе ки бози Aviator ро взлом карда будем "
+        "ин бозиро манъ карда будан.\n"
+        "Аммо мо бози Rocket queen ро взлом кардем.\n\n"
+        "Мухим дар як руз шумо 5 маротиба сигналро гиред вагарна шуморо Блок мекунанд!\n\n"
+        "Тугмаи зеринро пахш кун 👇"
+    )
+    bot.send_message(message.chat.id, welcome_text, reply_markup=markup)
+
+@bot.message_handler(func=lambda message: True)
+def all_messages(message):
+    user_id = message.from_user.id
+    today = str(datetime.date.today())
+
+    if user_id not in user_limits or user_limits[user_id]["date"] != today:
+        user_limits[user_id] = {"date": today, "count": 0}
+
+    if user_limits[user_id]["count"] >= 5:
+        bot.send_message(
+            message.chat.id,
+            "⛔️ Шумо лимити имрузаро истифода бурдед (5/5)!\n\n"
+            "Барои он ки аккаунти шумо блок нашавад, пагоҳ метавонед боз сигнал гиред."
+        )
+        return
+
+    user_limits[user_id]["count"] += 1
+    num = user_limits[user_id]["count"]
+
+    coef = round(random.uniform(1.25, 8.55), 2)
+    chance = random.randint(88, 98)
+
+    wait_msg = bot.send_message(message.chat.id, "🔍 Анализ ракета...")
+    time.sleep(1)
+    try:
+        bot.delete_message(message.chat.id, wait_msg.message_id)
+    except:
+        pass
+
+    signal_msg = (
+        f"🚀 ROCKET QUEEN СИГНАЛ #{num}\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"📈 Коэффициент: x{coef}\n"
+        f"🎯 Эҳтимолият: {chance}%\n"
+        f"📊 Лимит: {num}/5\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"⚠️ Пеш аз ин коэффициент маблағро гиред!"
+    )
+    bot.send_message(message.chat.id, signal_msg)
+
+print("Бот успешно запущен на сервере!")
+bot.infinity_polling(skip_pending=True)
