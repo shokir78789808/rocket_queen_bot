@@ -3,9 +3,26 @@ from telebot import types
 import random
 import time
 import datetime
+import threading
+from flask import Flask
+import os
 
+# Запуск простого веб-сервера для бесплатного тарифа Render
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is alive 24/7!"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
+
+# Запуск фонового веб-потока
+threading.Thread(target=run_flask, daemon=True).start()
+
+# Логика бота
 TOKEN = "8877765788:AAH3V3lREuztAbWhVRb5AlVD0U5CzzVlNC4"
-
 bot = telebot.TeleBot(TOKEN)
 bot.remove_webhook()
 
@@ -72,5 +89,5 @@ def all_messages(message):
     )
     bot.send_message(message.chat.id, signal_msg)
 
-print("Бот успешно запущен на сервере!")
+print("Бот успешно запущен на бесплатном сервере Render!")
 bot.infinity_polling(skip_pending=True)
